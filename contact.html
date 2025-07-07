@@ -58,34 +58,183 @@
         button:hover {
             background-color: #0056b3;
         }
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .error input,
+        .error textarea {
+            border-color: #dc3545;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Contact Us</h1>
-        <form action="#" method="POST">
+        <form id="contactForm" action="#" method="POST">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" id="name" name="name" required>
+                <div class="error-message" id="name-error"></div>
             </div>
             
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
+                <div class="error-message" id="email-error"></div>
             </div>
             
             <div class="form-group">
                 <label for="subject">Subject</label>
                 <input type="text" id="subject" name="subject" required>
+                <div class="error-message" id="subject-error"></div>
             </div>
             
             <div class="form-group">
                 <label for="message">Message</label>
                 <textarea id="message" name="message" required></textarea>
+                <div class="error-message" id="message-error"></div>
             </div>
             
             <button type="submit">Send Message</button>
         </form>
     </div>
+
+    <script>
+        // Get form and field elements
+        const form = document.getElementById('contactForm');
+        const nameField = document.getElementById('name');
+        const emailField = document.getElementById('email');
+        const subjectField = document.getElementById('subject');
+        const messageField = document.getElementById('message');
+
+        // Validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Show error message
+        function showError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+            const formGroup = field.closest('.form-group');
+            
+            formGroup.classList.add('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Clear error message
+        function clearError(fieldId) {
+            const field = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(fieldId + '-error');
+            const formGroup = field.closest('.form-group');
+            
+            formGroup.classList.remove('error');
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+
+        // Validate all fields
+        function validateForm() {
+            let isValid = true;
+
+            // Clear all previous errors
+            clearError('name');
+            clearError('email');
+            clearError('subject');
+            clearError('message');
+
+            // Validate name
+            if (nameField.value.trim() === '') {
+                showError('name', 'Name is required');
+                isValid = false;
+            }
+
+            // Validate email
+            if (emailField.value.trim() === '') {
+                showError('email', 'Email is required');
+                isValid = false;
+            } else if (!isValidEmail(emailField.value.trim())) {
+                showError('email', 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Validate subject
+            if (subjectField.value.trim() === '') {
+                showError('subject', 'Subject is required');
+                isValid = false;
+            }
+
+            // Validate message
+            if (messageField.value.trim() === '') {
+                showError('message', 'Message is required');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Add real-time validation on blur
+        nameField.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('name', 'Name is required');
+            } else {
+                clearError('name');
+            }
+        });
+
+        emailField.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('email', 'Email is required');
+            } else if (!isValidEmail(this.value.trim())) {
+                showError('email', 'Please enter a valid email address');
+            } else {
+                clearError('email');
+            }
+        });
+
+        subjectField.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('subject', 'Subject is required');
+            } else {
+                clearError('subject');
+            }
+        });
+
+        messageField.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                showError('message', 'Message is required');
+            } else {
+                clearError('message');
+            }
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+
+            // Show confirmation dialog
+            const confirmMessage = `Are you sure you want to send this message?\n\nName: ${nameField.value}\nEmail: ${emailField.value}\nSubject: ${subjectField.value}`;
+            
+            if (confirm(confirmMessage)) {
+                // If user confirms, submit the form
+                alert('Message sent successfully!');
+                // In a real application, you would submit the form data here
+                // this.submit();
+                
+                // Clear form after successful submission
+                form.reset();
+            }
+        });
+    </script>
 </body>
 </html>
